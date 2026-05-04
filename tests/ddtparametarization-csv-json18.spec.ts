@@ -1,40 +1,61 @@
-import { expect,test } from "@playwright/test"
+import { test, expect } from "@playwright/test";
 
+/**
+ * Topic: Data Driven Testing (DDT) in Playwright
+ * ----------------------------------------------
+ * Purpose:
+ * Run same test with multiple input data sets
+ * to validate application behavior across scenarios
+ */
 
-// 1st DDT Aproach Using For OF Loop
-const searchItems:string[] = ['laptop','Gift card','smartphone','monitors'];
+/**
+ * --------------------------------------
+ * TEST DATA (DRIVEN INPUTS)
+ * --------------------------------------
+ */
+const searchItems: string[] = [
+    "laptop",
+    "gift card",
+    "smartphone",
+    "monitors"
+];
 
-// for(const searchItem of searchItems){
-//     test(`test for ${searchItem}`,async({page})=>{
-//         await page.goto("https://demowebshop.tricentis.com/");
-//         await page.locator("#small-searchterms").fill(searchItem);
-//         await page.locator("xpath=//input[@value='Search']").click();
-//         await expect.soft(page.locator('h2 a').nth(0)).toContainText(searchItem,{ignoreCase:true});
-//     });
-// }
+const baseURL = "https://demowebshop.tricentis.com/";
 
+/**
+ * --------------------------------------
+ * DDT USING test.describe + forEach
+ * --------------------------------------
+ */
+test.describe("Search Functionality - DDT Suite", () => {
 
-// 2st DDT Aproach Using For Each Loop
-// searchItems.forEach((searchItem)=>{
-//     test(`test for ${searchItem}`,async({page})=>{
-//         await page.goto("https://demowebshop.tricentis.com/");
-//         await page.locator("#small-searchterms").fill(searchItem);
-//         await page.locator("xpath=//input[@value='Search']").click();
-//         await expect.soft(page.locator('h2 a').nth(0)).toContainText(searchItem,{ignoreCase:true});
-//     });
-// })
+    searchItems.forEach((searchItem) => {
 
+        test(`Search validation for: ${searchItem}`, async ({ page }) => {
 
-// // 3rd DDT Aproach Using For Each Loop with Describe
-test.describe("1st Group",async()=>{
-    searchItems.forEach((searchItem)=>{
-    test(`test for ${searchItem}`,async({page})=>{
-        await page.goto("https://demowebshop.tricentis.com/");
-        await page.locator("#small-searchterms").fill(searchItem);
-        await page.locator("xpath=//input[@value='Search']").click();
-        await expect.soft(page.locator('h2 a').nth(0)).toContainText(searchItem,{ignoreCase:true});
+            /**
+             * STEP 1: Navigate to application
+             */
+            await page.goto(baseURL);
+
+            /**
+             * STEP 2: Enter search keyword
+             */
+            await page.locator("#small-searchterms").fill(searchItem);
+
+            /**
+             * STEP 3: Click search button
+             */
+            await page.locator("xpath=//input[@value='Search']").click();
+
+            /**
+             * STEP 4: Validate search result (soft assertion for stability)
+             */
+            await expect
+                .soft(page.locator("h2 a").first())
+                .toContainText(searchItem, { ignoreCase: true });
+        });
+
     });
-})
 
-})
-
+});
