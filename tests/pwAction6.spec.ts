@@ -1,102 +1,118 @@
-import {test, expect, Locator} from '@playwright/test';
+// Import Playwright test utilities and Locator type
+import { test, expect, Locator } from "@playwright/test";
 
+/**
+ * Test Suite: Input Field Actions
+ * Objective: Validate text input behavior including visibility,
+ *            state validation, attribute checks, and value handling.
+ */
 
-// text box input actions in Playwright
 test("Verify Text Input Actions", async ({ page }) => {
+
+    // Step 1: Navigate to test application
     await page.goto("https://testautomationpractice.blogspot.com/");
-    const nameFiledTextBox: Locator = page.locator('#name'); // this will fill the input field with id "name" with the text "John Doe"
-    await expect(nameFiledTextBox).toBeVisible();
-    await expect(nameFiledTextBox).toBeEnabled();
-    // to find the value of max lenth of the name text field
-    const maxLength: any = await nameFiledTextBox.getAttribute("maxlength"); // this will get the value of the maxlength attribute of the input field with id "name"
-    expect(maxLength).toBe("15"); // this will verify that the maxlength attribute of the input field with id "name" is 50
-    await nameFiledTextBox.fill("John Doe"); 
-    const expectedValue: String = await nameFiledTextBox.inputValue();// this will fill the input field with id "name" with the text "John Doe"
-    expect(expectedValue).toBe("John Doe"); // this will verify that the value of the input field with id "name" is "John Doe"
-    await page.waitForTimeout(3000);
+
+    // Locate name input field
+    const nameField: Locator = page.locator("#name");
+
+    // Validate field is visible and editable
+    await expect(nameField).toBeVisible();
+    await expect(nameField).toBeEnabled();
+
+    // Validate max length attribute
+    const maxLength = await nameField.getAttribute("maxlength");
+    expect(maxLength).toBe("15");
+
+    // Enter text into input field
+    await nameField.fill("John Doe");
+
+    // Validate entered value
+    const enteredValue = await nameField.inputValue();
+    expect(enteredValue).toBe("John Doe");
+
 });
 
+/**
+ * Test Suite: Radio Button Actions
+ * Objective: Validate selection behavior of radio buttons.
+ */
 
-// Radio button actions in Playwright
 test("Verify Radio Button Actions", async ({ page }) => {
+
     await page.goto("https://testautomationpractice.blogspot.com/");
-    const maleRadioButton: Locator = page.locator("#male");
-    await expect(maleRadioButton).toBeVisible();
-    await expect(maleRadioButton).toBeEnabled();
-    expect(await maleRadioButton.isChecked()).toBe(false) // this will select the radio
-    await maleRadioButton.check(); // this will select the radio button with id "male"
-    expect(await maleRadioButton.isChecked()).toBe(true) // this will verify that the radio button
-    await expect(maleRadioButton).toBeChecked(); // Prefferable Method to verify that the radio button
-    await page.waitForTimeout(3000);
+
+    const maleRadio: Locator = page.locator("#male");
+
+    // Validate radio button state
+    await expect(maleRadio).toBeVisible();
+    await expect(maleRadio).toBeEnabled();
+    expect(await maleRadio.isChecked()).toBe(false);
+
+    // Select radio button
+    await maleRadio.check();
+
+    // Validate selection
+    await expect(maleRadio).toBeChecked();
+
 });
 
-test.only("Verify Check Box Actions", async ({ page }) => {
+/**
+ * Test Suite: Checkbox Actions
+ * Objective: Validate single, multiple, loop-based,
+ *            and conditional checkbox interactions.
+ */
+
+test("Verify Checkbox Actions", async ({ page }) => {
+
     await page.goto("https://testautomationpractice.blogspot.com/");
 
-    // to find the checkbox with label "Sunday" and select it
-    const sundayCheckBox: Locator = page.getByLabel("Sunday");
-    await sundayCheckBox.check(); // this will select the checkbox with id "Sunday"
-    await expect(sundayCheckBox).toBeChecked()
+    // List of weekdays
+    const daysOfWeek: string[] = [
+        "Sunday", "Monday", "Tuesday",
+        "Wednesday", "Thursday", "Friday", "Saturday"
+    ];
 
-    // select the checkbox and assert each is check
-    const daysOfWeek: string[] = ["Sunday","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const checkboxes:Locator[] = daysOfWeek.map(index => page.getByLabel(index));
-    expect(checkboxes.length).toBe(7); // this will verify that there are 7 checkboxes with the labels "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+    // Create checkbox locators
+    const checkboxes: Locator[] = daysOfWeek.map(day =>
+        page.getByLabel(day)
+    );
 
-    await page.waitForTimeout(3000);
-    // select each checkbox and assert each is check
+    // Validate total checkboxes
+    expect(checkboxes.length).toBe(7);
+
+    // Step 1: Check all checkboxes
     for (const checkbox of checkboxes) {
-        await checkbox.check(); // this will select each checkbox
-        await expect(checkbox).toBeChecked();  // this will verify that each checkbox is selected
+        await checkbox.check();
+        await expect(checkbox).toBeChecked();
     }
 
-    // uncheck the last 3 checkboxes and assert each is unchecked
+    // Step 2: Uncheck last 3 checkboxes
     for (const checkbox of checkboxes.slice(-3)) {
-        await checkbox.uncheck(); 
-        // this will unselect the last 3 checkboxes
-        await expect(checkbox).not.toBeChecked();  // this will verify that the last 3 checkboxes are unselected
+        await checkbox.uncheck();
+        await expect(checkbox).not.toBeChecked();
     }
 
-    await page.waitForTimeout(3000);
-
-
-    // toggle the first 4 checkboxes and assert each is toggled
-    for (const checkbox of checkboxes){
+    // Step 3: Toggle behavior (check/uncheck based on state)
+    for (const checkbox of checkboxes) {
         if (await checkbox.isChecked()) {
-            await checkbox.uncheck();   
-            await expect(checkbox).not.toBeChecked();  // this will verify that the checkbox is unselected
+            await checkbox.uncheck();
+            await expect(checkbox).not.toBeChecked();
         } else {
-            await checkbox.check(); 
-            await expect(checkbox).toBeChecked();  // this will verify that the checkbox is selected
-        } 
-
-    
-    }
-    
-
-    // select random checkboxes and assert each is check
-    const indexesOf: number[] = [1, 2, 4]; // this will select the checkboxes with the labels "Monday", "Wednesday", "Friday"
-    for (const i of indexesOf) {
-        await checkboxes[i].check();
-        await expect(checkboxes[i]).toBeChecked();  // this will verify that the checkboxes with the labels "Monday", "Wednesday", "Friday" are selected
-    }
-
-    await page.waitForTimeout(3000);
-
-
-    // select the checkbox with label "Friday" and assert it is check
-    const fridayCheckBox: Locator = page.getByLabel("Friday");
-    for (const day of daysOfWeek) {
-        if (day === "Friday") {
-            await fridayCheckBox.check(); // this will select the checkbox with label "Friday"
-            await expect(fridayCheckBox).toBeChecked();  // this will verify that the checkbox with label "Friday" is selected
+            await checkbox.check();
+            await expect(checkbox).toBeChecked();
         }
     }
 
+    // Step 4: Select specific indexes
+    const indexes = [1, 2, 4];
+    for (const i of indexes) {
+        await checkboxes[i].check();
+        await expect(checkboxes[i]).toBeChecked();
+    }
+
+    // Step 5: Select Friday using label
+    const friday: Locator = page.getByLabel("Friday");
+    await friday.check();
+    await expect(friday).toBeChecked();
+
 });
-
-
-
-
-
-
