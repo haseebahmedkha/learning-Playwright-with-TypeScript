@@ -1,84 +1,129 @@
-import {test, expect, Locator} from '@playwright/test';
-import { asyncWrapProviders } from 'node:async_hooks';
+import { test, expect } from "@playwright/test";
 
-// by default, Playwright automatically handles JavaScript alerts, confirms, and prompts by accepting them. However, you can listen for dialog events to perform custom actions or assertions when these dialogs appear.
-// playwrright dismisses the alert by default, but you can listen for the 'dialog' event and choose to accept or dismiss it based on your test requirements. In this example, we are accepting the alert, but you can modify it to dismiss if needed.
+/**
+ * Test Suite: JavaScript Dialog Handling
+ * Objective: Validate alert, confirm, and prompt dialogs
+ *            using Playwright dialog event handling.
+ */
 
-const url: string = "https://testautomationpractice.blogspot.com/";
+const url = "https://testautomationpractice.blogspot.com/";
 
-test("Verify Simple Dialog Alert Box",async({page},)=>{
-    await page.goto(url)
-    // Listen for the 'dialog' event to handle the alert
-    page.on('dialog',(dialog) => {
-        console.log("the Type of the Dialog is: " + dialog.type()); // alert, confirm, prompt
-        expect(dialog.type()).toBe("alert"); // Assert that the dialog is an alert
-        console.log("the Message in the Dialog is: " + dialog.message()); // I am an alert box!
-        expect(dialog.message()).toBe("I am an alert box!"); //
-        dialog.accept()
+/**
+ * ALERT BOX
+ */
+
+test("Verify Simple Alert Dialog", async ({ page }) => {
+
+    await page.goto(url);
+
+    page.on("dialog", async (dialog) => {
+
+        expect(dialog.type()).toBe("alert");
+        expect(dialog.message()).toBe("I am an alert box!");
+
+        console.log("Alert Type:", dialog.type());
+        console.log("Alert Message:", dialog.message());
+
+        await dialog.accept();
     });
-    page.locator("#alertBtn").click();
-    await page.waitForTimeout(2000);
+
+    await page.locator("#alertBtn").click();
+
+    await page.waitForTimeout(1000);
 });
 
-test("validate the confirm Dialog Box with confirm button", async ({page}) => {
+/**
+ * CONFIRM BOX - ACCEPT
+ */
+
+test("Verify Confirm Dialog - Accept", async ({ page }) => {
+
     await page.goto(url);
-    page.on('dialog', (dialog) => {
-        console.log("the Type of the Dialog is: " + dialog.type());
-        expect(dialog.type()).toBe("confirm"); // Assert that the dialog is a confirm
-        console.log("the Message in the Dialog is: " + dialog.message());
-        expect(dialog.message()).toBe("Press a button!");   
-        dialog.accept(); // Accept the confirm dialog (you can also choose to dismiss it if needed)
+
+    page.on("dialog", async (dialog) => {
+
+        expect(dialog.type()).toBe("confirm");
+        expect(dialog.message()).toBe("Press a button!");
+
+        await dialog.accept();
     });
+
     await page.locator("#confirmBtn").click();
-    const ActualText : string = "You pressed OK!";
-    const expectedText : string = await page.locator("#demo").innerText();
-    expect(expectedText).toBe(ActualText); // Assert the result of accepting the confirm dialog
+
+    const actualText = await page.locator("#demo").innerText();
+
+    expect(actualText).toBe("You pressed OK!");
 });
 
+/**
+ * CONFIRM BOX - CANCEL
+ */
 
-test("validate the confirm Dialog Box with cancel button", async ({page}) => {
+test("Verify Confirm Dialog - Cancel", async ({ page }) => {
+
     await page.goto(url);
-    page.on('dialog', (dialog) => {
-        console.log("the Type of the Dialog is: " + dialog.type());
-        expect(dialog.type()).toBe("confirm"); // Assert that the dialog is a confirm
-        console.log("the Message in the Dialog is: " + dialog.message());
-        expect(dialog.message()).toBe("Press a button!");   
-        dialog.dismiss(); // Accept the cancel dialog (you can also choose to dismiss it if needed)
+
+    page.on("dialog", async (dialog) => {
+
+        expect(dialog.type()).toBe("confirm");
+        expect(dialog.message()).toBe("Press a button!");
+
+        await dialog.dismiss();
     });
+
     await page.locator("#confirmBtn").click();
-    const ActualText : string = "You pressed Cancel!";
-    const expectedText : string = await page.locator("#demo").innerText();
-    expect(expectedText).toBe(ActualText); // Assert the result of accepting the confirm dialog
+
+    const actualText = await page.locator("#demo").innerText();
+
+    expect(actualText).toBe("You pressed Cancel!");
 });
 
-test("validate the confirm Dialog Box with Promt button", async ({page}) => {
+/**
+ * PROMPT BOX - ACCEPT INPUT
+ */
+
+test("Verify Prompt Dialog - Accept Input", async ({ page }) => {
+
     await page.goto(url);
-    const inputText : string = "Playwright";    
-    page.on('dialog', (dialog) => {
-        console.log("the Type of the Dialog is: " + dialog.type());
-        expect(dialog.type()).toBe("prompt"); // Assert that the dialog is a prompt
-        console.log("the Message in the Dialog is: " + dialog.message());
-        expect(dialog.message()).toBe("Please enter your name:");   
-        dialog.accept(inputText); // Accept the prompt dialog with input text (you can also choose to dismiss it if needed)
+
+    const inputText = "Playwright";
+
+    page.on("dialog", async (dialog) => {
+
+        expect(dialog.type()).toBe("prompt");
+        expect(dialog.message()).toBe("Please enter your name:");
+
+        await dialog.accept(inputText);
     });
+
     await page.locator("#promptBtn").click();
-    const ActualText : string = "Hello " + inputText + "! How are you today?";
-    const expectedText : string = await page.locator("#demo").innerText();
-    expect(expectedText).toBe(ActualText); // Assert the result of accepting the prompt dialog with input text
+
+    const actualText = await page.locator("#demo").innerText();
+
+    expect(actualText).toBe(
+        `Hello ${inputText}! How are you today?`
+    );
 });
 
+/**
+ * PROMPT BOX - CANCEL
+ */
 
-test("validate the confirm Dialog Box with Promt button with cancel", async ({page}) => {
+test("Verify Prompt Dialog - Cancel", async ({ page }) => {
+
     await page.goto(url);
-    page.on('dialog', (dialog) => {
-        console.log("the Type of the Dialog is: " + dialog.type()); 
-        expect(dialog.type()).toBe("prompt"); // Assert that the dialog is a prompt
-        console.log("the Message in the Dialog is: " + dialog.message());
-        expect(dialog.message()).toBe("Please enter your name:");   
-        dialog.dismiss(); // Dismiss the prompt dialog (you can also choose to accept it with input text if needed)
+
+    page.on("dialog", async (dialog) => {
+
+        expect(dialog.type()).toBe("prompt");
+        expect(dialog.message()).toBe("Please enter your name:");
+
+        await dialog.dismiss();
     });
+
     await page.locator("#promptBtn").click();
-    const ActualText : string = "User cancelled the prompt.";
-    const expectedText : string = await page.locator("#demo").innerText();
-    expect(expectedText).toBe(ActualText); // Assert the result of dismissing the prompt dialog
+
+    const actualText = await page.locator("#demo").innerText();
+
+    expect(actualText).toBe("User cancelled the prompt.");
 });
