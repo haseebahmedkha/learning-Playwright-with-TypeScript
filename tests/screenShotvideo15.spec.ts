@@ -1,43 +1,87 @@
-import {test,expect, Locator} from '@playwright/test'
+import { test, expect, Locator } from "@playwright/test";
 
-// another thing we can enable screen shots from config file 
-// option =    1. on 
-            // 2. off
-            // 3. success
-            // 4. failure
-//             use: {
-//     /* Base URL to use in actions like `await page.goto('')`. */
-//     // baseURL: 'http://localhost:3000',
+/**
+ * Topic: Playwright Screenshots & Visual Debugging
+ * Purpose: Capture full-page and element-level screenshots
+ */
 
-//     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-//     trace: 'on-first-retry',
-//     screenshot: 'only-on-failure',
-//     and for video 
-//     video:'on',
-//   },
+/**
+ * --------------------------------------
+ * SCREENSHOT CONFIGURATION (PLAYWRIGHT CONFIG)
+ * --------------------------------------
+ *
+ * screenshot options:
+ *
+ * 1. "on"               → always capture
+ * 2. "off"              → disable screenshots
+ * 3. "only-on-failure"  → capture only when test fails
+ * 4. "on-first-retry"   → capture on retry
+ *
+ * Example config:
+ *
+ * use: {
+ *   screenshot: "only-on-failure",
+ *   video: "on",
+ *   trace: "on-first-retry"
+ * }
+ */
 
-const url:string = "https://demowebshop.tricentis.com/";
-const savingLocation = 'screenshots/';
-const format = '.png';
-const currentDate: number = Date.now();
-// ScreenShot
-test("Take ScreenShot of a page and full Page",async({page})=>{
+const url: string = "https://demowebshop.tricentis.com/";
+
+const screenshotPath = "screenshots/";
+const format = ".png";
+const timestamp = Date.now();
+
+/**
+ * --------------------------------------
+ * FULL PAGE SCREENSHOT
+ * --------------------------------------
+ */
+
+test("Capture full page screenshot", async ({ page }) => {
+
     await page.goto(url);
-    // await page.screenshot({ path: `${savingLocation}page${format}` });
 
-    // for full page screenshot 
-    await page.screenshot({ path: `${savingLocation}page-${currentDate}${format}`,fullPage:true });
-
+    await page.screenshot({
+        path: `${screenshotPath}fullpage-${timestamp}${format}`,
+        fullPage: true
+    });
 });
 
-test.skip("take a SS for a Perticular locator like logo and other things",async({page})=>{
+/**
+ * --------------------------------------
+ * ELEMENT SCREENSHOT (LOGO)
+ * --------------------------------------
+ */
+
+test("Capture logo screenshot", async ({ page }) => {
+
     await page.goto(url);
+
     const logo: Locator = page.locator("img[alt='Tricentis Demo Web Shop']");
-    await logo.screenshot({ path: `${savingLocation}logo-${currentDate}${format}`});
+
+    await expect(logo).toBeVisible();
+
+    await logo.screenshot({
+        path: `${screenshotPath}logo-${timestamp}${format}`
+    });
 });
 
-test.only("take a SS for a Perticular feature Products",async({page})=>{
+/**
+ * --------------------------------------
+ * FEATURE PRODUCTS SCREENSHOT
+ * --------------------------------------
+ */
+
+test("Capture featured products section screenshot", async ({ page }) => {
+
     await page.goto(url);
-    const logo: Locator = page.locator(".product-grid.home-page-product-grid.");
-    await logo.screenshot({ path: `${savingLocation}products-${currentDate}${format}`});
+
+    const productsSection: Locator = page.locator(".product-grid.home-page-product-grid");
+
+    await expect(productsSection).toBeVisible();
+
+    await productsSection.screenshot({
+        path: `${screenshotPath}products-${timestamp}${format}`
+    });
 });
