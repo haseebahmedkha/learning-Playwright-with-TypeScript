@@ -1,0 +1,5 @@
+﻿email,password,validity
+haseebahmed.sqa.eng@gmail.com,test123,valid
+haseeb@gmail.com,test123,invalid
+ahmed@gmail.com,test123,invalid
+,,invalid

@@ -1,0 +1,34 @@
+HTML Element,ARIA Role (get_by_role),Notes/Context
+"<a>, <area>","link",Must have href attribute
+"<button>, <summary>","button","Includes <input type=""button/submit/reset"">"
+"<h1> through <h6>","heading","Use level option (1-6) to filter"
+"<input type=""text/email/password/tel/url"">","textbox",Standard text inputs
+"<textarea>","textbox",Multi-line text inputs
+"<input type=""checkbox"">","checkbox","Use checked=True/False to filter"
+"<input type=""radio"">","radio","Use checked=True/False to filter"
+"<select>","combobox",Standard dropdown menus
+"<option>","option",Items inside a select or listbox
+"<input type=""number"">","spinbutton",Numeric inputs with up/down arrows
+"<input type=""range"">","slider",Range/Volume sliders
+"<input type=""search"">","searchbox",Search input fields
+"<img>, <figure>","img",Only if it has alt text or a label
+"<ul>, <ol>","list",Unordered or Ordered lists
+"<li>","listitem",Individual items inside a list
+"<table>","table",Standard data tables
+"<tr>","row",Table rows
+"<td>","cell",Standard table cells
+"<th>","columnheader",Table header cells (usually in <thead>)
+"<nav>","navigation",Navigation blocks
+"<header>","banner",Usually top-level site header
+"<footer>","contentinfo",Usually top-level site footer
+"<main>","main",The primary content container
+"<aside>","complementary",Sidebars or related content
+"<form>","form",Must have an accessible name (aria-label)
+"<article>","article",Independent content blocks
+"<section>","region",Must have an accessible name
+"<dialog>","dialog",Modals or pop-up windows
+"<progress>","progressbar",Progress tracking elements
+"<meter>","meter",Gauge/Scalar measurements
+"<hr>","separator",Horizontal rules
+"<blockquote>","blockquote",Large quoted sections
+"<code>","code",Inline or block code snippets

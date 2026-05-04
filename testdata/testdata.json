@@ -1,0 +1,22 @@
+[
+  {
+    "email": "haseebahmed.sqa.eng@gmail.com",
+    "password": "test123",
+    "validity": "valid"
+  },
+  {
+    "email": "haseebahmed.sqa.eng@gmail.com",
+    "password": "wrongpass",
+    "validity": "invalid"
+  },
+  {
+    "email": "wronguser@gmail.com",
+    "password": "test123",
+    "validity": "invalid"
+  },
+  {
+    "email": "",
+    "password": "",
+    "validity": "invalid"
+  }
+]
