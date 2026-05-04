@@ -1,60 +1,82 @@
-import {test, expect, Frame, FrameLocator, Locator} from '@playwright/test';
-import { text } from 'node:stream/consumers';
+import { test, expect, Frame, FrameLocator, Locator } from "@playwright/test";
 
+/**
+ * Test Suite: iFrame Handling in Playwright
+ * Objective: Validate single and nested iframe interactions
+ *            using Frame API and FrameLocator API.
+ */
 
-test.beforeEach(async ({page}) => {
+test.beforeEach(async ({ page }) => {
     await page.goto("https://ui.vision/demo/webtest/frames/");
 });
 
+/**
+ * FRAME METHOD - Direct frame access
+ */
 
+test("Validate iframe using Frame method", async ({ page }) => {
 
-test("validate the Iframe handling with frame method ", async ({page}) => {
-    // frame method only works with link or name or id of the frame
-    const frame = page.frames();
-    console.log("Total Number of Frames in the Page: " + frame.length);
-    expect(frame.length).toBe(7); // Assert that there are 3 frames in the page
+    const frames = page.frames();
 
+    console.log("Total Frames:", frames.length);
 
-    const firstframe: Frame | any = page.frame({url:"https://ui.vision/demo/webtest/frames/frame_1.html"});
-    const textbox = firstframe.locator("xpath=//input[@name='mytext1']");
-    textbox.fill("Haseeb Ahmed");
-    const actualText : any = await textbox.textContent();
-    const expectedText : any = "Frame1";
-    expect(actualText).toBe(expectedText); // Assert the text in the first frame
-    await page.waitForTimeout(2000);
+    const frame1: Frame | undefined = page.frame({
+        url: "https://ui.vision/demo/webtest/frames/frame_1.html"
+    });
 
+    if (!frame1) throw new Error("Frame1 not found");
 
-});
+    const textbox = frame1.locator("input[name='mytext1']");
 
-
-test("validate the Iframe handling with frameLocator method ", async ({page}) => {
-    // frameLocator method works with any selector for the frame
-    const frameLocator: FrameLocator = page.frameLocator("[src='frame_2.html']");
-    const textbox: Locator = frameLocator.locator("xpath=//input[@name='mytext2']");
     await textbox.fill("Haseeb Ahmed");
 
+    await expect(textbox).toHaveValue("Haseeb Ahmed");
 });
 
-test.only("Validate the Iframe of Child Iframe with Frame method or FrameLocator",async({page})=>{
-    const frame3: Frame | null = page.frame({url:"https://ui.vision/demo/webtest/frames/frame_3.html"});
-    const howManyFramesInside = frame3?.childFrames();
-    // to fing how many child iframes 
-    console.log("Total number of Frames inside Frame3:",howManyFramesInside?.length)
+/**
+ * FRAMElOCATOR METHOD
+ */
 
-    // validate the checkbox of child iframe of iframe3
-    const radio = howManyFramesInside?.[0].getByLabel("I am a human");
-    const checked = await radio?.check();
-    expect(radio).toBe(checked)
+test("Validate iframe using FrameLocator method", async ({ page }) => {
 
+    const frameLocator: FrameLocator = page.frameLocator("[src='frame_2.html']");
 
+    const textbox: Locator = frameLocator.locator("input[name='mytext2']");
 
+    await textbox.fill("Haseeb Ahmed");
+
+    await expect(textbox).toHaveValue("Haseeb Ahmed");
 });
 
+/**
+ * NESTED IFRAME HANDLING
+ */
 
+test("Validate nested iframe inside Frame 3", async ({ page }) => {
 
-test.afterEach(async ({page}) => {
+    const frame3: Frame | null = page.frame({
+        url: "https://ui.vision/demo/webtest/frames/frame_3.html"
+    });
+
+    if (!frame3) throw new Error("Frame3 not found");
+
+    const childFrames = frame3.childFrames();
+
+    console.log("Child Frames Count:", childFrames.length);
+
+    const childFrame = childFrames[0];
+
+    const checkbox = childFrame.getByLabel("I am a human");
+
+    await checkbox.check();
+
+    await expect(checkbox).toBeChecked();
+});
+
+/**
+ * AFTER EACH CLEANUP
+ */
+
+test.afterEach(async ({ page }) => {
     await page.waitForTimeout(2000);
-    page.close();
 });
-
-
