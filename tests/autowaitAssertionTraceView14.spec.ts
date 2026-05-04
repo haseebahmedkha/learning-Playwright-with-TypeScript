@@ -1,59 +1,86 @@
-import {test, expect} from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
+/**
+ * Topic: Playwright Assertions & Timeouts
+ * Purpose: Understand waiting strategy and assertion types
+ */
 
-// there two type of Auto wait
-// one is for Test which is default by 3 seconds (30000 miliseonds)
-// second for assertion like Expect = 10000 miliseconds 
-test("Validate the test.........",async({page})=>{
+/**
+ * -----------------------------
+ * TIMEOUTS IN PLAYWRIGHT
+ * -----------------------------
+ *
+ * 1. Test Timeout (default ~30s)
+ *    - Applies to full test execution
+ *
+ * 2. Assertion Timeout (default ~5s - 10s depending config)
+ *    - Applies only to expect() calls
+ */
 
-    // you can set manually like this 
+test("Validate test timeout configuration", async ({ page }) => {
+
+    // Set timeout for entire test
     test.setTimeout(120000);
-    expect(page.locator).toBeVisible({ timeout: 10_000 })
 
+    await page.goto("https://demowebshop.tricentis.com/");
 
+    const logo = page.locator("img[alt='Tricentis Demo Web Shop']");
+
+    await expect(logo).toBeVisible({ timeout: 10000 });
 });
 
+/**
+ * -----------------------------
+ * ASSERTION TYPES
+ * -----------------------------
+ */
 
-// Now there is another thing that one is Auto Retriveing and no Auto
+test("Playwright Assertion Demo", async ({ page }) => {
 
-// 1. auto retrieving Assertion is used for to get any promise and work with await 
-await expect(loacator).toBeChecked();
-// 2. non retring Assertion and without no need to wait for return any promise
-expect(locator).toBe();
+    await page.goto("https://demowebshop.tricentis.com/");
 
-
-test("Playwright Assertion Demo",async ({page})=>{
-    await page.goto("https://demowebshop.tricentis.com/")
-    // 1. Auto-retrying Assertion
+    // 1. Auto-retrying assertions (Playwright waits until condition is met)
     await expect(page).toHaveURL("https://demowebshop.tricentis.com/");
-    await expect(page.locator("")).toBeVisible();
-    await expect(page.locator("")).toHaveText("any visible Text");
 
-    // 2. Non-retrying Assertion
+    const searchBox = page.locator("#small-searchterms");
+
+    await expect(searchBox).toBeVisible();
+
+    await searchBox.fill("Laptop");
+
+    await expect(searchBox).toHaveValue("Laptop");
+
+    // 2. Non-retrying assertion (works on resolved value)
     const title = await page.title();
-    expect(page.locator("")).toBe("");
 
-    // 3. Negative retrying Assetion (not) applicable for both auto or non auto
-    const titleOofthewebsite = await page.title();
-    expect(page.locator("")).not.toBe("");
+    expect(title).toContain("Demo Web Shop");
 
+    // 3. Negative assertion
+    await expect(searchBox).not.toHaveValue("Mobile");
 });
 
+/**
+ * -----------------------------
+ * HARD vs SOFT ASSERTIONS
+ * -----------------------------
+ */
 
-test("Hard and Soft Assertion",async({page})=>{
-    // hard Assertion 
-    // when the first assertion got failed others assertion not executes
-    await page.goto("");
-    await expect(page.locator("")).toBeVisible(); // if failed
-    expect(page.locator("")).toBeTruthy; // this assertion show showing and not executed
+test("Hard vs Soft Assertions", async ({ page }) => {
 
-    // soft Assertion
-    // when first assertion got failed the others are excuted
-    // so we Soft Keyword for this like below
-    await expect.soft(page.locator("")).toBeVisible(); // if failed
-    expect.soft(page.locator("")).toBeTruthy; // this will work
-    
+    await page.goto("https://demowebshop.tricentis.com/");
 
-    
+    const logo = page.locator("img[alt='Tricentis Demo Web Shop']");
+    const searchBox = page.locator("#small-searchterms");
 
+    // HARD ASSERTION (default)
+    await expect(logo).toBeVisible();
+
+    // If above fails → test stops here
+
+    // SOFT ASSERTION (continues execution even if failed)
+    await expect.soft(searchBox).toBeVisible();
+
+    await expect.soft(searchBox).toBeEnabled();
+
+    // Soft assertions allow full test execution
 });
