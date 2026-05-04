@@ -1,41 +1,63 @@
-import {test, expect, Locator} from '@playwright/test';
+// Import Playwright test runner, assertions, and Locator type
+import { test, expect, Locator } from "@playwright/test";
 
+/**
+ * Test Suite: XPath Axes Validation
+ * Objective: Validate different XPath axes by navigating through
+ *            table elements on the W3Schools HTML Tables page.
+ */
 
-test("Verify XPath Axes", async ({ page }) => {
+test("Verify XPath axes using table data", async ({ page }) => {
+
+    // Step 1: Navigate to the test page
     await page.goto("https://www.w3schools.com/html/html_tables.asp");
 
-    // 1. self axis in XPath = used to select the current node or element. It is represented by a single dot (.) and is often used in conjunction with other axes to navigate through the DOM tree.
-    const verifylocatorGermany: Locator = page.locator("//td[text()='Germany']/self::td"); // this will locate the td element that contains the text "Germany" and then select itself using self axis
-    await expect(verifylocatorGermany).toHaveText("Germany");
+    // --- Axis 1: self ---
+    // Validate that the element containing 'Germany' can reference itself
+    const germanyCell: Locator = page.locator("//td[text()='Germany']/self::td");
+    await expect(germanyCell).toHaveText("Germany");
 
-    // 2. parent axis in XPath = used to select the parent node of the current node or element. It is represented by a double dot (..) and is often used to navigate up the DOM tree.
-    const parentLocator: Locator = page.locator("//td[text()='Germany']/parent::tr"); // this will locate the td element that contains the text "Germany" and then select its parent tr element using parent axis
-    await expect(parentLocator).toContainText("Germany");
-    await expect(parentLocator).toContainText("Maria Anders Germany");
-    console.log("Parent Element Text: " , await parentLocator.textContent());
+    // --- Axis 2: parent ---
+    // Locate the parent row of 'Germany' and validate its content
+    const parentRow: Locator = page.locator("//td[text()='Germany']/parent::tr");
+    await expect(parentRow).toContainText("Germany");
+    await expect(parentRow).toContainText("Maria Anders Germany");
 
-    // 3. child axis in XPath = used to select the child nodes of the current node or element. It is represented by a single forward slash (/) and is often used to navigate down the DOM tree.
-    const secondRowCells: Locator = page.locator("//table[@id='customers']//tr[2]/child::td"); // this will locate the second tr element of the table with id "customers" and then select its child td elements using child axis
-    await expect(secondRowCells).toHaveCount(3); // this will verify that there are 3 td elements in the second row of the table
-    
-    // 4. ancestor axis in XPath = used to select all the ancestor nodes of the current node or element. It is represented by a double forward slash (//) followed by the ancestor axis keyword "ancestor" and is often used to navigate up the DOM tree.
-    const ancestorLocator: Locator = page.locator("//td[text()='Germany']/ancestor::table"); // this will locate the td element that contains the text "Germany" and then select its ancestor table element using ancestor axis
-    await expect(ancestorLocator).toHaveAttribute("id", "customers");
-    console.log("Ancestor Element Tag Name: " , await ancestorLocator.evaluate(node => node.tagName)); // this will print the tag name of the ancestor element in the console
+    console.log("Parent Row Content:", await parentRow.textContent());
 
-    // 5. descendant axis in XPath = used to select all the descendant nodes of the current node or element. It is represented by a double forward slash (//) followed by the descendant axis keyword "descendant" and is often used to navigate down the DOM tree.
-    const descendantLocatorAllTd: Locator = page.locator("//table[@id='customers']/descendant::td"); // this will locate the table element with id "customers" and then select all its descendant td elements using descendant axis
-    await expect(descendantLocatorAllTd).toHaveCount(18); // this will verify that there are 30 td elements in the table with id "customers"
+    // --- Axis 3: child ---
+    // Validate number of child cells in the second row of the table
+    const secondRowCells: Locator = page.locator("//table[@id='customers']//tr[2]/child::td");
+    await expect(secondRowCells).toHaveCount(3);
 
-    // 6. following axis in XPath = used to select all the sibling nodes that come after the current node or element. It is represented by a double forward slash (//) followed by the following-sibling axis keyword "following-sibling" and is often used to navigate horizontally in the DOM tree.
-    const followingSiblingLocator: Locator = page.locator("//td[text()='Germany']/following::td");
-    await expect(followingSiblingLocator).toHaveCount(15); // this will verify that there are 15 td elements that come after the td element that contains the text "Germany"
+    // --- Axis 4: ancestor ---
+    // Validate that the ancestor table has the correct ID
+    const ancestorTable: Locator = page.locator("//td[text()='Germany']/ancestor::table");
+    await expect(ancestorTable).toHaveAttribute("id", "customers");
 
-    //7. following-sibling axis in XPath = used to select all the sibling nodes that come after the current node or element. It is represented by a double forward slash (//) followed by the following-sibling axis keyword "following-sibling" and is often used to navigate horizontally in the DOM tree.
-    const followingSiblingLocator2: Locator = page.locator("//td[text()='Germany']/following-sibling::td");
-    await expect(followingSiblingLocator2).toHaveCount(1); // this will verify that there is 1 td element that comes after the td element that contains the text "Germany" and is a sibling of it
+    console.log(
+        "Ancestor Element Tag:",
+        await ancestorTable.evaluate(node => node.tagName)
+    );
 
-    // 8. preceding-sibling axis in XPath = used to select all the sibling nodes that come before the current node or element. It is represented by a double forward slash (//) followed by the preceding-sibling axis keyword "preceding-sibling" and is often used to navigate horizontally in the DOM tree.
-    const precedingSiblingLocator: Locator = page.locator("//td[text()='Germany']/preceding::td");
-    await expect(precedingSiblingLocator).toHaveCount(2); // this will verify that there are 2 td elements that come before the td element that contains the text "Germany" 
+    // --- Axis 5: descendant ---
+    // Validate total number of descendant <td> elements in the table
+    const allTableCells: Locator = page.locator("//table[@id='customers']/descendant::td");
+    await expect(allTableCells).toHaveCount(18);
+
+    // --- Axis 6: following ---
+    // Validate all elements that appear after 'Germany' in the DOM
+    const followingElements: Locator = page.locator("//td[text()='Germany']/following::td");
+    await expect(followingElements).toHaveCount(15);
+
+    // --- Axis 7: following-sibling ---
+    // Validate immediate sibling element after 'Germany'
+    const nextSibling: Locator = page.locator("//td[text()='Germany']/following-sibling::td");
+    await expect(nextSibling).toHaveCount(1);
+
+    // --- Axis 8: preceding ---
+    // Validate elements that appear before 'Germany'
+    const precedingElements: Locator = page.locator("//td[text()='Germany']/preceding::td");
+    await expect(precedingElements).toHaveCount(2);
+
 });
