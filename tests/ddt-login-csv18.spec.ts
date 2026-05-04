@@ -1,39 +1,90 @@
-import { parse } from 'csv-parse/sync';
-import { test, expect } from '@playwright/test';
-import fs from 'fs';
+import { test, expect } from "@playwright/test";
+import { parse } from "csv-parse/sync";
+import fs from "fs";
 
+/**
+ * Topic: CSV Data Driven Testing (DDT)
+ * --------------------------------------
+ * Purpose:
+ * Read test data from CSV file and execute
+ * login tests dynamically using Playwright
+ */
+
+/**
+ * --------------------------------------
+ * TEST DATA SOURCE (CSV)
+ * --------------------------------------
+ */
 const url: string = "https://demowebshop.tricentis.com/login";
 const filePath = "testdata/data.csv";
 
-const filecontent = fs.readFileSync(filePath, 'utf-8');
-const records: any[] = parse(filecontent, {
+/**
+ * Read CSV file
+ */
+const fileContent = fs.readFileSync(filePath, "utf-8");
+
+const records: any[] = parse(fileContent, {
     columns: true,
     skip_empty_lines: true
 });
 
-test.describe("test Login", () => {
-    records.forEach((record, index) => {          // ✅ use forEach to get index
-        const email = record.email || 'empty';
-        const password = record.password || 'empty';
-        const validity = record.validity;
+/**
+ * --------------------------------------
+ * DDT TEST SUITE
+ * --------------------------------------
+ */
+test.describe("Login DDT Using CSV Data", () => {
 
-        test(`[${index + 1}] login test for ${email}`, async ({ page }) => {  // ✅ index in title makes it always unique
+    records.forEach((record, index) => {
+
+        const email = record.email || "";
+        const password = record.password || "";
+        const validity = record.validity || "invalid";
+
+        test(`[${index + 1}] Login Test | ${email || "empty email"}`, async ({ page }) => {
+
+            /**
+             * STEP 1: Navigate to login page
+             */
             await page.goto(url);
-            await page.locator("#Email").fill(record.email || '');
-            await page.locator("#Password").fill(record.password || '');
-            await page.locator("xpath=//input[@value='Log in']").click();
 
-            const errorMessage = "Login was unsuccessful. Please correct the errors and try again.";
-            const errorMessageLocator = page.locator("xpath=//span[contains(text(),'Login was unsuccessful. Please correct the errors ')]");
-            const logout = page.locator(".ico-logout");
+            /**
+             * STEP 2: Enter credentials
+             */
+            await page.locator("#Email").fill(email);
+            await page.locator("#Password").fill(password);
 
-            if (validity.toLowerCase() === 'valid') {
-                await expect(logout).toBeVisible();
-                await logout.click();
+            /**
+             * STEP 3: Click login button
+             */
+            await page.locator("input[value='Log in']").click();
+
+            /**
+             * STEP 4: Locators
+             */
+            const logoutBtn = page.locator(".ico-logout");
+            const errorMsg = page.locator(".message-error");
+
+            /**
+             * STEP 5: Validation logic
+             */
+            if (validity.toLowerCase() === "valid") {
+
+                await expect(logoutBtn).toBeVisible();
+
+                await logoutBtn.click();
+
             } else {
-                await expect(errorMessageLocator).toHaveText(errorMessage);
+
+                await expect(errorMsg).toContainText(
+                    "Login was unsuccessful"
+                );
+
                 await expect(page).toHaveURL(url);
             }
+
         });
+
     });
+
 });
