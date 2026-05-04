@@ -1,41 +1,54 @@
-import {test,expect} from '@playwright/test'
+import { test, expect } from "@playwright/test";
 
-//  ----------- Hooks Test -------------
-// there is Four Types of Hooks 
-// 1.BeforeEach
-// 2.AfterEach
-// 3.BeforeAll
-// 4.AfterAll
-// we can use hooks with Groups but when we put in a group its wont work with other Group
+/**
+ * Topic: Playwright Hooks
+ * Purpose: Setup and teardown control for test execution
+ */
 
-test.beforeAll("Group One",async()=>{
-    console.log("this will execute before all Test Cases");
+/**
+ * --------------------------------------
+ * TYPES OF HOOKS
+ * --------------------------------------
+ *
+ * 1. beforeAll    → runs once before all tests
+ * 2. afterAll     → runs once after all tests
+ * 3. beforeEach   → runs before every test
+ * 4. afterEach    → runs after every test
+ */
 
-});
-test.afterAll("Group One",async()=>{
-    console.log("this will execute after all Test Cases");
+/**
+ * --------------------------------------
+ * TEST GROUP (BEST PRACTICE)
+ * --------------------------------------
+ */
 
-});
-test.beforeEach("Group One",async()=>{
-    console.log("this will execute before each Test Case");
+test.describe("Group One - Hooks Demo", () => {
+
+    test.beforeAll(async () => {
+        console.log("Before ALL tests in Group One");
     });
-test.afterEach("Group One",async()=>{
-    console.log("this will execute after each Test Case");
+
+    test.afterAll(async () => {
+        console.log("After ALL tests in Group One");
     });
 
-test("test One",async({})=>{
-    console.log("Welcome Haseeb");
+    test.beforeEach(async () => {
+        console.log("Before EACH test in Group One");
+    });
 
+    test.afterEach(async () => {
+        console.log("After EACH test in Group One");
+    });
+
+    test("Test One", async () => {
+        console.log("Executing Test One");
+    });
+
+    test("Test Two", async () => {
+        console.log("Executing Test Two");
+    });
+
+    test("Test Three", async () => {
+        console.log("Executing Test Three");
+    });
 });
-test("test two",async({})=>{
-    console.log("Welcome Haseeb");
-});
-test("test Three",async({})=>{
-    console.log("Welcome Haseeb");
-});
-    
-
-    
-
-
-
