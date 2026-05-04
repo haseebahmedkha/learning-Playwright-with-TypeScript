@@ -1,44 +1,72 @@
-import {test, expect, Locator} from "@playwright/test";
-import { text } from "node:stream/consumers";
+import { test, expect, Locator } from "@playwright/test";
 
-test("Verify colors dropdown is sorted",async ({page})=>{
-    await page.goto("https://testautomationpractice.blogspot.com/")
-    const colorsdropdownoptions: Locator = page.locator("#colors>option");
-    const colorsoptionText:string[] = (await colorsdropdownoptions.allTextContents()).map(text => text.trim());
-    const colorsorigionalDropdownOptions: string[] = [...colorsoptionText];
-    const colorssortedDropdownOptions: string[] = [...colorsoptionText.sort()];
-    // console.log(colorsorigionalDropdownOptions);
-    // console.log(colorssortedDropdownOptions);
-    expect(colorsorigionalDropdownOptions).toEqual(colorssortedDropdownOptions); // this will verify that the dropdown options are sorted in ascending order
-    await page.waitForTimeout(3000);
+/**
+ * Test Suite: Dropdown Validations
+ * Objective: Validate sorting order and duplicate values in dropdown lists
+ *            for Colors and Animals dropdowns.
+ */
+
+test("Verify Colors dropdown is sorted", async ({ page }) => {
+
+    await page.goto("https://testautomationpractice.blogspot.com/");
+
+    // Get all dropdown options
+    const colorOptions: Locator = page.locator("#colors > option");
+
+    // Extract and clean text values
+    const colorText: string[] = (await colorOptions.allTextContents())
+        .map(text => text.trim());
+
+    // Copy original list
+    const originalOrder: string[] = [...colorText];
+
+    // Create sorted list
+    const sortedOrder: string[] = [...colorText].sort();
+
+    // Validate dropdown is already sorted
+    expect(originalOrder).toEqual(sortedOrder);
+
 });
 
-test("Verify Animals dropdown is sorted",async ({page})=>{
-    await page.goto("https://testautomationpractice.blogspot.com/")
-    const animalsdropdownoptions: Locator = page.locator("#animals>option");
-    const animalsoptionText:string[] = (await animalsdropdownoptions.allTextContents()).map(text => text.trim());
-    const animalsorigionalDropdownOptions: string[] = [...animalsoptionText];
-    const animalssortedDropdownOptions: string[] = [...animalsoptionText.sort()]; 
-    // console.log(animalsorigionalDropdownOptions);
-    // console.log(animalssortedDropdownOptions);  
-    expect(animalsorigionalDropdownOptions).toEqual(animalssortedDropdownOptions); // this will verify that the dropdown options are not sorted in ascending order
-    await page.waitForTimeout(3000);
+test("Verify Animals dropdown is sorted", async ({ page }) => {
+
+    await page.goto("https://testautomationpractice.blogspot.com/");
+
+    const animalOptions: Locator = page.locator("#animals > option");
+
+    const animalText: string[] = (await animalOptions.allTextContents())
+        .map(text => text.trim());
+
+    const originalOrder: string[] = [...animalText];
+    const sortedOrder: string[] = [...animalText].sort();
+
+    expect(originalOrder).toEqual(sortedOrder);
+
 });
 
-test("verify duplicate options in colors dropdown", async ({page})=>{
-    await page.goto("https://testautomationpractice.blogspot.com/")
-    const colorsdropdownoptions: Locator = page.locator("#colors>option");
-    const colorsoptionText:string[] = (await colorsdropdownoptions.allTextContents()).map(text => text.trim());
-    const myset: Set<string> = new Set();
+test("Verify duplicate values in Colors dropdown", async ({ page }) => {
+
+    await page.goto("https://testautomationpractice.blogspot.com/");
+
+    const colorOptions: Locator = page.locator("#colors > option");
+
+    const colorText: string[] = (await colorOptions.allTextContents())
+        .map(text => text.trim());
+
+    const seen: Set<string> = new Set();
     const duplicates: string[] = [];
-    for (const option of colorsoptionText) {
-        if (myset.has(option)) {
-            duplicates.push(option); // this will add the duplicate options to the duplicates array
+
+    for (const value of colorText) {
+        if (seen.has(value)) {
+            duplicates.push(value);
         } else {
-            myset.add(option); // this will add the unique options to the myset set
+            seen.add(value);
         }
     }
 
-    console.log("dublicates values --->",duplicates);
-    expect(duplicates).toBe(0); // this will print the duplicate options in the dropdown
+    console.log("Duplicate values:", duplicates);
+
+    // Validate no duplicates exist
+    expect(duplicates.length).toBe(0);
+
 });
