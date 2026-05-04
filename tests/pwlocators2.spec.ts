@@ -1,56 +1,48 @@
-// focus on Build In locators in Playwright
+// Import Playwright test runner, assertions, and Locator type
+import { test, expect, Locator } from "@playwright/test";
 
-// Locators = to find web elements on the web page 
-// Dom = Document Object Model, a programming interface for web documents. It represents the structure of a web page as a tree-like structure, where each node in the tree corresponds to an element on the page. The DOM allows developers to manipulate the content and structure of a web page using JavaScript, making it possible to create dynamic and interactive web applications. By using the DOM, developers can access and modify elements on the page, respond to user events, and create animations and other effects. Understanding the DOM is essential for web development and is a fundamental part of working with web technologies.
+/**
+ * Test Suite: Playwright Built-in Locators
+ * Objective: Validate different Playwright locator strategies by interacting
+ *            with elements on the nopCommerce demo website.
+ */
 
+test("Verify Playwright built-in locator strategies", async ({ page }) => {
 
-// page.getByRole() to locate by explicit and implicit accessibility attributes.
-// page.getByText() to locate by text content.
-// page.getByLabel() to locate a form control by associated label's text.
-// page.getByPlaceholder() to locate an input by placeholder.
-// page.getByAltText() to locate an element, usually image, by its text alternative.
-// page.getByTitle() to locate an element by its title attribute.
-// page.getByTestId() to locate an element based on its data-testid attribute (other attributes can be configured).
-
-import {test, expect, Locator} from "@playwright/test";
-
-// Syntax of Test
-// test("Test name", async({fixture}) => (
-//     // test code goes here
-//     // step 1: navigate to the website
-//     // step 2: perform some actions
-//     // step 3: make assertions
-// ));
-
-test("Verify Playwright Locators", async ({ page }) => {
-
-    // 1.getByAltText() to locate an element, usually image, by its text alternative.
+    // Step 1: Navigate to the application under test
     await page.goto("https://demo.nopcommerce.com/");
+
+    // --- Locator 1: getByAltText() ---
+    // Validate that the website logo is visible using alt text
     const logo: Locator = page.getByAltText("nopCommerce demo store");
     await expect(logo).toBeVisible();
 
-    // 2. getByText() to locate by text content.
+    // --- Locator 2: getByText() ---
+    // Verify that the homepage welcome message is displayed
     await expect(page.getByText("Welcome to our store")).toBeVisible();
 
-    // 3. getByRole() to locate by explicit and implicit accessibility attributes.
+    // --- Locator 3: getByRole() ---
+    // Click on the "Register" link and validate navigation to the Register page
     await page.getByRole("link", { name: "Register" }).click();
     await expect(page.getByRole("heading", { name: "Register" })).toBeVisible();
 
-
-    // 4. getByLabel() to locate a form control by associated label's text. like signup form, login form, etc.
+    // --- Locator 4: getByLabel() ---
+    // Fill registration form fields using associated labels
     await page.getByLabel("First name:").fill("John");
     await page.getByLabel("Last name:").fill("Doe");
     await page.getByLabel("Email:").fill("haseebahmed.sqa.eng@gmail.com");
 
-    // 5. getByPlaceholder() to locate an input by placeholder. for example, dont have labels like search box, etc. which has placeholder attribute in the html code.
+    // --- Locator 5: getByPlaceholder() ---
+    // Interact with search input field using placeholder text
     await page.getByPlaceholder("Search store").fill("Laptop");
 
-    // 6. getByTitle() to locate an element by its title attribute.
-
-    page.getByTitle("nopCommerce demo store").click();
+    // --- Locator 6: getByTitle() ---
+    // Click on the logo using title attribute and verify homepage navigation
+    await page.getByTitle("nopCommerce demo store").click();
     await expect(page.getByRole("heading", { name: "Welcome to our store" })).toBeVisible();
 
-    // 7. getByTestId() to locate an element based on its data-testid attribute (other attributes can be configured).
+    // --- Locator 7: getByTestId() ---
+    // Enter value into newsletter field using test ID
     await page.getByTestId("newsletter-email").fill("haseeb");
 
-})
+});
