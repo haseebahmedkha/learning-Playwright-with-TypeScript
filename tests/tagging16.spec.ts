@@ -1,42 +1,63 @@
-import test from "@playwright/test";
+import { test } from "@playwright/test";
 
-// ------------ tagging -------------
-// there is Two Method to craeting a Tagging
+/**
+ * Topic: Playwright Test Tagging (GREP Filtering)
+ * Purpose: Run specific groups of tests in CI/CD pipelines
+ */
 
-// for running test like sanity 
-// npx playwrigth test testname.spec.ts --grep "@sanity"
+/**
+ * --------------------------------------
+ * WHY TAGGING IS USED
+ * --------------------------------------
+ *
+ * Tags help to:
+ * - Run specific test groups (smoke, sanity, regression)
+ * - Improve CI/CD execution speed
+ * - Organize large test suites
+ */
 
+/**
+ * --------------------------------------
+ * RUN TESTS USING TAGS (CLI)
+ * --------------------------------------
+ *
+ * Run only sanity tests:
+ * npx playwright test --grep "@sanity"
+ *
+ * Run sanity AND regression:
+ * npx playwright test --grep "(?=.*@sanity)(?=.*@regression)"
+ *
+ * Run sanity OR regression:
+ * npx playwright test --grep "@sanity|@regression"
+ *
+ * Run sanity BUT NOT regression:
+ * npx playwright test --grep "@sanity" --grep-invert "@regression"
+ */
 
-// for running test like sanity and regression 
-// npx playwrigth test testname.spec.ts --grep (?=.*@sanity)(?=.*@regression)
+/**
+ * --------------------------------------
+ * METHOD 1: TAGS IN TEST NAME
+ * --------------------------------------
+ */
 
-// for running test like sanity or regression 
-// npx playwrigth test testname.spec.ts --grep "@sanity|@regression"
-
-// for running test like sanity which not belongs to regression
-// npx playwrigth test testname.spec.ts --grep "@sanity|@regression"
-
-// for running test like sanity but not regression
-// npx playwrigth test testname.spec.ts --grep "@sanity" --grep-invert "@regression"
-
-// 1. first 
-test("@sanity Test Case",async({})=>{
-
+test("@sanity Login Test Case", async () => {
+    console.log("Sanity test execution");
 });
 
-// we can use multple like this 
-test("@sanity @regression Test Case",async({})=>{
-
+test("@sanity @regression Checkout Test Case", async () => {
+    console.log("Multi-tag test execution");
 });
 
-// 1. Second
-test("Test Case",{tag:'@regression'}, async({})=>{
+/**
+ * --------------------------------------
+ * METHOD 2: TAGS USING OPTIONS
+ * --------------------------------------
+ */
 
+test("Regression Test Case", { tag: "@regression" }, async () => {
+    console.log("Regression test execution");
 });
 
-// we can use multple like this 
-test("@sanity @regression Test Case",{tag:['@regression,@sanity']},async({})=>{
-
+test("Smoke + Sanity Test Case", { tag: ["@smoke", "@sanity"] }, async () => {
+    console.log("Multiple tag execution");
 });
-
-
