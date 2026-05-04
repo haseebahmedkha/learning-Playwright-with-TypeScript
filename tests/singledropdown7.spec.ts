@@ -1,36 +1,50 @@
-import {test, expect, Locator} from "@playwright/test";
-import { text } from "node:stream/consumers";
+import { test, expect, Locator } from "@playwright/test";
 
+/**
+ * Test Suite: Single Dropdown Actions
+ * Objective: Validate dropdown selection methods and verify dropdown values
+ *            for the country selection field.
+ */
 
 test("Verify Single Dropdown Actions", async ({ page }) => {
+
+    // Step 1: Navigate to application
     await page.goto("https://testautomationpractice.blogspot.com/");
 
-    //a. there is Four ways to select the single dropdown options
-    // 1. select the option with id
-    page.locator("#country").selectOption("#country");
-    // 2. select the option with value
-    page.locator("#country").selectOption({value: "India"});
-    // 3. select the option with label
-    page.locator("#country").selectOption({label: "India"});
-    // 4. select the option with index
-    page.locator("#country").selectOption({index: 3});
+    const countryDropdown: Locator = page.locator("#country");
 
-    page.waitForTimeout(3000);
+    // --- Dropdown Selection Methods ---
 
-    //b. validate the selected option
-    const dropdownOption: Locator = page.locator("#country>option");
-    await expect(dropdownOption).toHaveCount(10); // this will verify that there are 10 options in the dropdown
-    
-    //c. validate the option is in the dropdown or not
-    const optionValues: string[] = (await dropdownOption.allTextContents()).map(text => text.trim());
-    expect(optionValues).toContain("Japan"); // this will verify that the option with the label "Japan" is in the dropdown
-    console.log(optionValues);
+    // 1. Select by value
+    await countryDropdown.selectOption({ value: "India" });
 
-    // d. print all the options in the dropdown
-    for(const option of optionValues) {
-        console.log(option); // this will print all the options in the dropdown
+    // 2. Select by label (visible text)
+    await countryDropdown.selectOption({ label: "India" });
+
+    // 3. Select by index
+    await countryDropdown.selectOption({ index: 3 });
+
+    // Small wait (for observation only - not recommended in real frameworks)
+    await page.waitForTimeout(3000);
+
+    // --- Validate dropdown options ---
+
+    const options: Locator = page.locator("#country > option");
+
+    // Validate total number of options
+    await expect(options).toHaveCount(10);
+
+    // Extract all option texts
+    const optionValues: string[] = (await options.allTextContents())
+        .map(text => text.trim());
+
+    // Validate specific value exists
+    expect(optionValues).toContain("Japan");
+
+    // Log all dropdown values (debug purpose)
+    console.log("Dropdown Options:");
+    for (const option of optionValues) {
+        console.log(option);
     }
-
-
 
 });
